@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Foot measurements</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            height: 100vh;
+        }
+
+        #intro {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            background-color: white;
+        }
+
+        #container {
+            height: 100%;
+        }
+
+        #container>#toolbar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 5;
+            background-color: white;
+        }
+
+        #container>canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="intro" class="p-3">
+        <h1>Staheli Arch Index calculator</h1>
+        <p>Utility to help measure and calculate the Staheli Arch Index, which is the ratio of the support width of the
+            foot's central region to the support width of the heel region.</p>
+        <p>Open your footprint file to start.</p>
+        <input id="file" class="form-control" type="file" accept="image/*">
+    </div>
+    <div id="container">
+        <div id="toolbar" class="p-3">
+            <a id="back" href="#"><img src="images/arrow-left.svg" alt="Back" /></a>
+            <a id="save" href="#" class="ml-3" download="sai.png"><img src="images/save-one.svg" alt="Save" /></a>
+        </div>
+        <canvas></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+    <script type="module" src="./main.js"></script>
+</body>
+
+</html>
