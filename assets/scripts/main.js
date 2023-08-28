@@ -9,14 +9,9 @@ const canvas = document.querySelector("#container > canvas");
 const resizeObserver = new ResizeObserver((entries) => {
   canvas.height = entries[0].contentRect.height;
   canvas.width = entries[0].contentRect.width;
-  changed = true;
+  pubsub.publishChanged();
 });
 resizeObserver.observe(container);
-
-document.getElementById("back").addEventListener("click", (ev) => {
-  document.getElementById("intro").style.display = "block";
-  ev.preventDefault();
-});
 
 document.getElementById("save").addEventListener("click", (ev) => {
   ev.currentTarget.href = canvas.toDataURL();

@@ -14,8 +14,6 @@ export default class FileInput {
 
     const imageElement = new Image();
     imageElement.addEventListener("load", async () => {
-      document.getElementById("intro").style.display = "none";
-
       input.value = null;
 
       const image = await createImageBitmap(imageElement);

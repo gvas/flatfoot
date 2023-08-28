@@ -19,7 +19,6 @@ export default class FileInput {
         });
         const imageElement = new Image();
         imageElement.addEventListener("load", () => __awaiter(this, void 0, void 0, function* () {
-            document.getElementById("intro").style.display = "none";
             input.value = null;
             const image = yield createImageBitmap(imageElement);
             pubsub.publish({
