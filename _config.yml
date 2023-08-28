@@ -22,7 +22,7 @@ title: Staheli Arch Index Calculator
 email: gvas.munka@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   Tool to measure and calculate the Staheli Arch Index
-baseurl: "" # the subpath of your site, e.g. /blog
+baseurl: "/flatfoot" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  gvas
 
