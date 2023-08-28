@@ -9,7 +9,7 @@ title: Staheli arch index calculator
 
 The [Staheli arch index](https://www.ijmhr.org/ijar.7.1/IJAR.2018.427.pdf) (SAI) is an index that provides a quantitative measurement of the plantar arch of the feet. It can be used to measure how flat your foot is.
 
-![Staheli arch index measurement](/assets/images/sai.jpg)
+![Staheli arch index measurement](assets/images/sai.jpg)
 
 For attaining SAI a line is drawn tangent to the medial forefoot edge and at heel region. The mean point of this line is calculated. From this point, a perpendicular line is drawn crossing the footprint. The same procedure is repeated for heel tangency point. We thereby, obtain the measurement of the support width of the central region to the foot (A) and of the heel region (B) The SAI is obtained by dividing minimum sole width A value to maximum heel width B value (SAI = A/B)
 
@@ -17,7 +17,7 @@ For attaining SAI a line is drawn tangent to the medial forefoot edge and at hee
 
 1.  Make a footprint: paint your sole with water-based paint and stand on a piece of typewriter paper. Use a light paint similar to your skin color, because it is not easy to wash off.
 2.  Scan the footprint. You can also simply take a photo, but in this case, make sure that the image is not distorted, because it will affect the SAI.
-3.  Open the tool and load the picture. <a href="/tool.html">Open the tool</a>
+3.  Open the tool and load the picture. <a href="tool.html">Open the tool</a>
 4.  You can move and enlarge the scanned image. Drag the tangent by moving the two control points, then mark the sections that fall on the foot under the perpendiculars.
 5.  SAI can be seen in the upper right corner of the image.
 
