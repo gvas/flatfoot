@@ -3,6 +3,7 @@ import PubSub from "./modules/pubsub.js";
 import Tangent from "./modules/tangent.js";
 import SAI from "./modules/sai.js";
 import FileInput from "./modules/file-input.js";
+import Interactions from "./modules/interactions.js";
 
 const container = document.querySelector("#container");
 const canvas = document.querySelector("#container > canvas");
@@ -20,6 +21,7 @@ document.getElementById("save").addEventListener("click", (ev) => {
 const context = canvas.getContext("2d");
 
 const pubsub = new PubSub();
+const interactions = new Interactions(pubsub, canvas);
 const tangent = new Tangent(pubsub, canvas);
 const transform = new Transform(pubsub, canvas);
 const fileInput = new FileInput(pubsub);

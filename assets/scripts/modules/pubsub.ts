@@ -18,7 +18,9 @@ export default class PubSub {
 
   publish(payload: any) {
     for (const subscriber of this._subscribers) {
-      subscriber(payload);
+      if (subscriber(payload)) {
+        break;
+      }
     }
   }
 

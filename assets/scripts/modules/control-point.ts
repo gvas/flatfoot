@@ -1,11 +1,11 @@
 import PubSub from "./pubsub.js";
 
 const SIZE = 5;
+const HITBOX_SIZE = 15;
 
 export default class ControlPoint {
   private readonly _pubsub: PubSub;
   private readonly _id: string;
-  private readonly _abortController: AbortController;
   protected _point: DOMPoint;
   private _dragging = false;
   private _transform = new DOMMatrix();
@@ -13,27 +13,26 @@ export default class ControlPoint {
   constructor(pubsub: PubSub, id: string, canvas: HTMLCanvasElement) {
     this._pubsub = pubsub;
     this._id = id;
-    this._abortController = new AbortController();
-
-    canvas.addEventListener("mousedown", this._onMouseDown.bind(this), {
-      signal: this._abortController.signal,
-    });
-    canvas.addEventListener("mouseup", this._onMouseUpOrLeave.bind(this), {
-      signal: this._abortController.signal,
-    });
-    canvas.addEventListener("mouseleave", this._onMouseUpOrLeave.bind(this), {
-      signal: this._abortController.signal,
-    });
-    canvas.addEventListener("mousemove", this._onMouseMove.bind(this), {
-      signal: this._abortController.signal,
-    });
 
     pubsub.subscribe((message: any) => {
       switch (message.type) {
         case "transformChanged":
           this._transformChanged(message.payload);
           break;
+
+        case "dragStart":
+          return this._onDragStart(message.payload);
+
+        case "drag":
+          this._onDrag(message.payload);
+          break;
+
+        case "dragEnd":
+          this._onDragEnd();
+          break;
       }
+
+      return false;
     });
   }
 
@@ -53,35 +52,35 @@ export default class ControlPoint {
 
   _adjustToBoundaries() {}
 
-  _onMouseDown(ev: MouseEvent) {
+  _onDragStart({ x, y }: { x: number; y: number }): boolean {
     const canvasCoordPoint = this._transform.transformPoint(this._point);
 
     if (
-      canvasCoordPoint.x - SIZE <= ev.clientX &&
-      canvasCoordPoint.x + SIZE >= ev.clientX &&
-      canvasCoordPoint.y - SIZE <= ev.clientY &&
-      canvasCoordPoint.y + SIZE >= ev.clientY
+      canvasCoordPoint.x - HITBOX_SIZE <= x &&
+      canvasCoordPoint.x + HITBOX_SIZE >= x &&
+      canvasCoordPoint.y - HITBOX_SIZE <= y &&
+      canvasCoordPoint.y + HITBOX_SIZE >= y
     ) {
       this._dragging = true;
       this._pubsub.publishChanged();
-      ev.stopImmediatePropagation();
+      return true;
     }
+
+    return false;
   }
 
-  _onMouseUpOrLeave() {
+  _onDragEnd() {
     this._dragging = false;
     this._pubsub.publishChanged();
   }
 
-  _onMouseMove(ev: MouseEvent) {
+  _onDrag({ x, y }: { x: number; y: number }) {
     if (!this._dragging) {
       return;
     }
 
     const inverseTransform = this._transform.inverse();
-    this._point = inverseTransform.transformPoint(
-      new DOMPoint(ev.clientX, ev.clientY)
-    );
+    this._point = inverseTransform.transformPoint(new DOMPoint(x, y));
     this._adjustToBoundaries();
 
     this._pubsub.publish({
@@ -99,10 +98,6 @@ export default class ControlPoint {
     this._publishChange();
   }
 
-  destroy() {
-    this._abortController.abort();
-  }
-
   draw(context: CanvasRenderingContext2D) {
     context.beginPath();
     if (this._dragging) {
@@ -117,7 +112,7 @@ export default class ControlPoint {
       context.lineWidth = 3 / this._transform.a;
       context.setLineDash([]);
       context.stroke();
-    }else{
+    } else {
       context.arc(
         this._point.x,
         this._point.y,

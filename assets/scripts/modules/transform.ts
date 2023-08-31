@@ -3,32 +3,42 @@ import PubSub from "./pubsub.js";
 export default class Transform {
   private readonly _pubsub: PubSub;
   private readonly _canvas: HTMLCanvasElement;
-  private readonly _abortController: AbortController;
   private _image: ImageBitmap;
   private _transform = new DOMMatrix();
   private _dragging = false;
+  private _dragOrigin: { x: number; y: number };
+  private _zoomOrigin: { x: number; y: number };
+  private _originalScale: number;
 
   constructor(pubsub: PubSub, canvas: HTMLCanvasElement) {
     this._pubsub = pubsub;
     this._canvas = canvas;
-    this._abortController = new AbortController();
-
-    this._canvas.addEventListener("wheel", this._onWheel.bind(this), {
-      signal: this._abortController.signal,
-    });
-    this._canvas.addEventListener("mousedown", this._onMouseDown.bind(this), {
-      signal: this._abortController.signal,
-    });
-    this._canvas.addEventListener("mouseup", this._onMouseUp.bind(this), {
-      signal: this._abortController.signal,
-    });
-    this._canvas.addEventListener("mousemove", this._onMouseMove.bind(this), {
-      signal: this._abortController.signal,
-    });
 
     pubsub.subscribe((message) => {
-      if (message.type === "imageLoaded") {
-        this._onImageLoaded(message.payload);
+      switch (message.type) {
+        case "imageLoaded":
+          this._onImageLoaded(message.payload);
+          break;
+
+        case "zoomStart":
+          this._onZoomStart(message.payload);
+          break;
+
+        case "zoom":
+          this._onZoom(message.payload);
+          break;
+
+        case "dragStart":
+          this._onDragStart(message.payload);
+          break;
+
+        case "drag":
+          this._onDrag(message.payload);
+          break;
+
+        case "dragEnd":
+          this._onDragEnd();
+          break;
       }
     });
   }
@@ -52,20 +62,28 @@ export default class Transform {
     this._pubsub.publishChanged();
   }
 
-  _onWheel(ev: WheelEvent) {
-    ev.preventDefault();
+  _onZoomStart(zoomOrigin: { x: number; y: number }) {
+    this._zoomOrigin = zoomOrigin;
+    this._originalScale = this._transform.a;
+  }
 
-    const scale =
-      this._transform.a *
-      (Math.abs(ev.deltaY) * (0.1 / 120)) ** Math.sign(ev.deltaY);
+  _onZoom(scale: number) {
+    const newScale = this._originalScale * scale;
     const offsetX =
-      ev.offsetX -
-      ((ev.offsetX - this._transform.e) * scale) / this._transform.a;
+      this._zoomOrigin.x -
+      ((this._zoomOrigin.x - this._transform.e) * newScale) / this._transform.a;
     const offsetY =
-      ev.offsetY -
-      ((ev.offsetY - this._transform.f) * scale) / this._transform.a;
+      this._zoomOrigin.y -
+      ((this._zoomOrigin.y - this._transform.f) * newScale) / this._transform.a;
 
-    this._transform = new DOMMatrix([scale, 0, 0, scale, offsetX, offsetY]);
+    this._transform = new DOMMatrix([
+      newScale,
+      0,
+      0,
+      newScale,
+      offsetX,
+      offsetY,
+    ]);
 
     this._pubsub.publish({
       type: "transformChanged",
@@ -74,31 +92,32 @@ export default class Transform {
     this._pubsub.publishChanged();
   }
 
-  _onMouseDown() {
+  _onDragStart({ x, y }: { x: number; y: number }) {
     this._dragging = true;
+    this._dragOrigin = {
+      x: x - this._transform.e,
+      y: y - this._transform.f,
+    };
   }
 
-  _onMouseUp() {
+  _onDragEnd() {
     this._dragging = false;
+    this._dragOrigin = null;
   }
 
-  _onMouseMove(ev: MouseEvent) {
+  _onDrag({ x, y }: { x: number; y: number }) {
     if (!this._dragging) {
       return;
     }
 
-    this._transform.e += ev.movementX;
-    this._transform.f += ev.movementY;
+    this._transform.e = x - this._dragOrigin.x;
+    this._transform.f = y - this._dragOrigin.y;
 
     this._pubsub.publish({
       type: "transformChanged",
       payload: this._transform,
     });
     this._pubsub.publishChanged();
-  }
-
-  destroy() {
-    this._abortController.abort();
   }
 
   draw(context: CanvasRenderingContext2D) {
